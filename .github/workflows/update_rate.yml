@@ -2,11 +2,8 @@ name: Update USDT Rate
 
 on:
   schedule:
-    - cron: "*/1 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   update-rate:
@@ -19,6 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
@@ -27,12 +25,10 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install requests beautifulsoup4
 
       - name: Run rate fetcher
-        run: |
-          python rate_fetcher.py
+        run: python rate_fetcher.py
 
       - name: Commit and push if changed
         run: |
@@ -41,5 +37,6 @@ jobs:
           git add rate.json
           git diff --quiet && git diff --staged --quiet || (
             git commit -m "chore: update rate.json"
-            git push
           )
+          git pull --rebase
+          git push
