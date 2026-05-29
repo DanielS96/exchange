@@ -30,6 +30,13 @@ jobs:
       - name: Run rate fetcher
         run: python rate_fetcher.py
 
+      - name: Pull latest changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin
+          git pull --rebase origin main
+
       - name: Check if rate.json changed
         id: check
         run: |
@@ -42,11 +49,6 @@ jobs:
       - name: Commit and push if changed
         if: steps.check.outputs.changed == 'true'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin
-          git checkout main
-          git pull --rebase origin main
           git add rate.json
           git commit -m "chore: update rate.json"
           git push origin main
