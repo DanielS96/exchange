@@ -6,6 +6,9 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch: # Позволяет запускать вручную
 
+permissions:
+  contents: write
+
 jobs:
   update-rates:
     runs-on: ubuntu-latest
@@ -13,7 +16,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -28,9 +34,27 @@ jobs:
       run: python fetch_rates.py
       
     - name: Commit and push if changed
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        # Настройка git
+        git config --local user.name "github-actions[bot]"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Проверяем, есть ли изменения в rate.json
+        if git diff --quiet rate.json; then
+          echo "No changes to rate.json"
+          exit 0
+        fi
+        
+        # Добавляем файл
         git add rate.json
-        git diff --quiet && git diff --staged --quiet || git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-        git push
+        
+        # Пытаемся сделать коммит и пуш с разрешением конфликтов
+        git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        
+        # Pull с rebase перед пушем
+        git pull --rebase origin main
+        
+        # Push изменений
+        git push origin main
