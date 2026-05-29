@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Курс RUB ↔ USDT TRC20 (Москва)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 20px;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 12px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: #1e293b;
+      color: #e2e8f0;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #334155;
+    }
+    button.active {
+      background: #2563eb;
+      color: #fff;
+    }
+    .rate-box {
+      background: #1e293b;
+      padding: 16px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .rate {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 6px 0;
+    }
+    .label {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    .updated {
+      color: #64748b;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Средневзвешенный курс RUB ↔ USDT TRC20 (Москва)</h1>
+
+  <div class="buttons">
+    <button data-key="rub_usdt_msk">RUB → USDT</button>
+    <button data-key="usdt_rub_msk">USDT → RUB</button>
+  </div>
+
+  <div class="rate-box">
+    <div class="label" id="label">Выбери направление</div>
+    <div class="rate" id="rate"></div>
+    <div class="updated" id="updated"></div>
+  </div>
+
+  <script>
+    let rates = null;
+
+    async function loadRates() {
+      const res = await fetch("rate.json?" + Date.now());
+      rates = await res.json();
+      updateUI();
+    }
+
+    function updateUI() {
+      if (!rates) return;
+      const active = document.querySelector("button.active");
+      if (active) showRate(active.dataset.key);
+    }
+
+    function showRate(key) {
+      const labelEl = document.getElementById("label");
+      const rateEl = document.getElementById("rate");
+      const updatedEl = document.getElementById("updated");
+
+      const labels = {
+        rub_usdt_msk: "RUB → USDT (Москва)",
+        usdt_rub_msk: "USDT → RUB (Москва)",
+      };
+
+      const rate = rates[key];
+      if (!rate) {
+        labelEl.textContent = "Ошибка данных";
+        rateEl.textContent = "";
+        return;
+      }
+
+      labelEl.textContent = labels[key];
+
+      if (key === "rub_usdt_msk") {
+        rateEl.textContent = `${rate.toFixed(6)} RUB за 1 USDT`;
+      } else {
+        rateEl.textContent = `${rate.toFixed(6)} USDT за 1 RUB`;
+      }
+
+      const d = new Date(rates.updated_at);
+      updatedEl.textContent = `Обновлено: ${d.toLocaleString("ru-RU")}`;
+    }
+
+    document.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        showRate(btn.dataset.key);
+      });
+    });
+
+    loadRates();
+    setInterval(loadRates, 2 * 60 * 1000);
+  </script>
+</body>
+</html>
