@@ -1,0 +1,48 @@
+name: Update USDT Rate
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update-rate:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run rate fetcher
+        run: python rate_fetcher.py
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update rate.json
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+          git add rate.json
+          if git diff --staged --quiet; then
+            echo "No changes in rate.json, skipping commit"
+            exit 0
+          fi
+          git commit -m "chore: update rate.json"
+          git push origin main
