@@ -4,74 +4,285 @@
   <meta charset="UTF-8" />
   <title>Курс RUB ↔ USDT TRC20 (Москва)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      margin: 20px;
-      background: #0f172a;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1228 100%);
       color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
     }
+
+    /* Фон с градиентными пятнами */
+    body::before,
+    body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      top: -100px;
+      left: -100px;
+      animation: float1 8s ease-in-out infinite;
+    }
+
+    body::after {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: -50px;
+      right: -50px;
+      animation: float2 10s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(50px, 50px); }
+    }
+
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-40px, -60px); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
     h1 {
-      font-size: 1.4rem;
-      margin-bottom: 10px;
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
     }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(147, 162, 192, 0.15);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
     .buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 24px;
     }
+
     button {
-      padding: 12px 14px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
+      padding: 16px 20px;
+      border: 1px solid rgba(147, 162, 192, 0.2);
+      border-radius: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
       cursor: pointer;
-      background: #1e293b;
-      color: #e2e8f0;
-      transition: background 0.2s;
+      background: rgba(30, 41, 59, 0.8);
+      color: #94a3b8;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
     }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s;
+      border-radius: 16px;
+    }
+
+    button:hover::before {
+      opacity: 1;
+    }
+
     button:hover {
-      background: #334155;
+      border-color: rgba(99, 102, 241, 0.5);
+      color: #e2e8f0;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
     }
+
     button.active {
-      background: #2563eb;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-color: transparent;
       color: #fff;
+      box-shadow: 
+        0 8px 24px rgba(99, 102, 241, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
+
+    button.active::before {
+      opacity: 0;
+    }
+
     .rate-box {
-      background: #1e293b;
-      padding: 16px;
-      border-radius: 10px;
-      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(147, 162, 192, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
     }
-    .rate {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin: 6px 0;
+
+    .rate-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
     }
+
     .label {
       color: #94a3b8;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    .updated {
+
+    .rate {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 8px 0;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .rate-placeholder {
+      font-size: 1.1rem;
       color: #64748b;
-      font-size: 0.8rem;
-      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .updated {
+      color: #475569;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .updated::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .loading {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      .buttons {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .rate {
+        font-size: 1.6rem;
+      }
+
+      .card {
+        padding: 22px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Средневзвешенный курс RUB ↔ USDT TRC20 (Москва)</h1>
+  <div class="container">
+    <div class="header">
+      <h1>Курс RUB ↔ USDT TRC20</h1>
+      <div class="subtitle">Москва • Средневзвешенный курс</div>
+    </div>
 
-  <div class="buttons">
-    <button data-key="rub_usdt_msk">RUB → USDT</button>
-    <button data-key="usdt_rub_msk">USDT → RUB</button>
-  </div>
+    <div class="card">
+      <div class="buttons">
+        <button data-key="rub_usdt_msk">RUB → USDT</button>
+        <button data-key="usdt_rub_msk">USDT → RUB</button>
+      </div>
 
-  <div class="rate-box">
-    <div class="label" id="label">Выбери направление</div>
-    <div class="rate" id="rate"></div>
-    <div class="updated" id="updated"></div>
+      <div class="rate-box">
+        <div class="label" id="label">Выбери направление</div>
+        <div class="rate" id="rate">
+          <div class="rate-placeholder">Нажми на кнопку</div>
+        </div>
+        <div class="updated" id="updated"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -102,16 +313,17 @@
       const rate = rates[key];
       if (!rate) {
         labelEl.textContent = "Ошибка данных";
-        rateEl.textContent = "";
+        rateEl.innerHTML = '<div class="rate-placeholder">Нет данных</div>';
+        updatedEl.textContent = "";
         return;
       }
 
       labelEl.textContent = labels[key];
 
       if (key === "rub_usdt_msk") {
-        rateEl.textContent = `${rate.toFixed(6)} RUB за 1 USDT`;
+        rateEl.innerHTML = `${rate.toFixed(6)} <span style="font-size: 1rem; color: #94a3b8; font-weight: 500;">RUB за 1 USDT</span>`;
       } else {
-        rateEl.textContent = `${rate.toFixed(6)} USDT за 1 RUB`;
+        rateEl.innerHTML = `${rate.toFixed(6)} <span style="font-size: 1rem; color: #94a3b8; font-weight: 500;">USDT за 1 RUB</span>`;
       }
 
       const d = new Date(rates.updated_at);
