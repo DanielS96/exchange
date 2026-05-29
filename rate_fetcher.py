@@ -8,6 +8,9 @@ from bs4 import BeautifulSoup
 
 URL = "https://www.bestchange.ru/cash-ruble-to-tether-trc20-in-msk.html"
 
+# CSS-селектор для средневзвешенного курса
+CSS_RATE = "#undertable > div.m-hint > span:nth-child(2) > span:nth-child(5) > span"
+
 def get_weighted_rate() -> float | None:
     headers = {
         "User-Agent": (
@@ -29,24 +32,30 @@ def get_weighted_rate() -> float | None:
     html = resp.text
     soup = BeautifulSoup(html, "html.parser")
 
-    # Ищем точную фразу: "Средневзвешенный курс обмена: 77.240772"
-    rate = None
-    for el in soup.find_all(string=re.compile(r"Средневзвешенный курс обмена:")):
-        text = el.strip()
-        # пример: "Средневзвешенный курс обмена: 77.240772"
-        m = re.search(r"Средневзвешенный курс обмена:\s*([\d.,]+)", text)
-        if m:
-            rate_str = m.group(1).replace(",", ".")
-            rate = float(rate_str)
-            print(f"Найден средневзвешенный курс: {rate}")
-            break
-
-    if rate is None:
-        print("Средневзвешенный курс не найден в странице")
-        # для отладки сохранит страницу
+    elements = soup.select(CSS_RATE)
+    if not elements:
+        print("Элемент по CSS-селектору не найден")
         with open("debug_bestchange.html", "w", encoding="utf-8") as f:
             f.write(html)
+        return None
 
+    text = elements[0].get_text(strip=True)
+    print(f"Текст элемента: {text}")
+
+    # Извлекаем число: "77.240772" или "77,240772"
+    m = re.search(r"([\d.,]+)", text)
+    if not m:
+        print("Число не найдено в тексте элемента")
+        return None
+
+    rate_str = m.group(1).replace(",", ".")
+    try:
+        rate = float(rate_str)
+    except ValueError:
+        print(f"Не удалось преобразовать в float: {rate_str}")
+        return None
+
+    print(f"Найден средневзвешенный курс: {rate}")
     return rate
 
 def main():
