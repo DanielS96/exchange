@@ -30,13 +30,10 @@ jobs:
       - name: Run rate fetcher
         run: python rate_fetcher.py
 
-      - name: Configure git
+      - name: Configure git and update rate.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Update rate.json
-        run: |
           git fetch origin main
           git reset --hard origin/main
           git add rate.json
