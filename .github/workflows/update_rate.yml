@@ -2,9 +2,8 @@ name: Update Exchange Rates
 
 on:
   schedule:
-    # Запуск каждые 5 минут
     - cron: '*/5 * * * *'
-  workflow_dispatch: # Позволяет запускать вручную
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,7 +17,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -33,28 +31,26 @@ jobs:
     - name: Run fetch script
       run: python fetch_rates.py
       
-    - name: Commit and push if changed
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Commit and push changes
       run: |
         # Настройка git
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         
-        # Проверяем, есть ли изменения в rate.json
+        # Проверяем, есть ли изменения
         if git diff --quiet rate.json; then
-          echo "No changes to rate.json"
+          echo "✅ No changes to commit"
           exit 0
         fi
         
         # Добавляем файл
         git add rate.json
-        
-        # Пытаемся сделать коммит и пуш с разрешением конфликтов
         git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
         
-        # Pull с rebase перед пушем
-        git pull --rebase origin main
+        # Ключевая часть: сначала pull, потом push
+        git pull origin main --rebase
         
-        # Push изменений
+        # Теперь push должен работать
         git push origin main
+        
+        echo "✅ Successfully updated and pushed rates"
