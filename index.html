@@ -127,6 +127,14 @@
     });
 
     loadRates();
+    // Показать первый курс сразу
+    setTimeout(() => {
+      const firstBtn = document.querySelector("button[data-key='rub_usdt_msk']");
+      if (firstBtn) {
+        firstBtn.click();
+      }
+    }, 50);
+
     setInterval(loadRates, 2 * 60 * 1000);
   </script>
 </body>
