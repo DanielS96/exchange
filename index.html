@@ -323,7 +323,7 @@
     let rates = null;
 
     async function loadRates() {
-      const res = await fetch("rate.json?" + Date.now());
+      const res = await fetch("https://exchange.dan-svistunov.workers.dev?" + Date.now());
       rates = await res.json();
       updateUI();
     }
