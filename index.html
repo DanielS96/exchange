@@ -255,14 +255,19 @@
       animation: pulse 2s ease-in-out infinite;
     }
 
+    .error-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      color: #f87171;
+      margin-top: 16px;
+    }
+
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
-    }
-
-    .loading {
-      opacity: 0.5;
-      pointer-events: none;
     }
 
     @media (max-width: 480px) {
@@ -311,50 +316,60 @@
       <div class="rate-box">
         <div class="label" id="label">Выбери направление</div>
         <div class="rate" id="rate">
-          <div class="rate-placeholder">Нажми на кнопку</div>
+          <div class="rate-placeholder">Загрузка...</div>
         </div>
         <div class="updated" id="updated"></div>
+        <div id="error" style="display: none;" class="error-badge"></div>
       </div>
     </div>
   </div>
 
   <script>
     let rates = null;
-    let updateCounter = 0;
+    let lastUpdate = null;
 
     async function loadRates() {
-      updateCounter++;
-      const cacheBuster = `t=${Date.now()}&n=${updateCounter}`;
+      const rateEl = document.getElementById("rate");
+      const errorEl = document.getElementById("error");
       
       try {
-        const res = await fetch(`https://exchange.dan-svistunov.workers.dev/?${cacheBuster}`, {
-          cache: 'no-cache',
+        // Добавляем случайный параметр для обхода кеша
+        const response = await fetch(`rate.json?t=${Date.now()}`, {
+          cache: 'no-store',
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
+            'Cache-Control': 'no-cache'
           }
         });
         
-        if (!res.ok) {
-          console.error('Ошибка загрузки курса:', res.status);
-          return;
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
         
-        rates = await res.json();
-        console.log('Курс обновлён:', rates);
-        updateUI();
+        rates = await response.json();
+        errorEl.style.display = 'none';
+        
+        // Обновляем отображение если есть активная кнопка
+        const active = document.querySelector("button.active");
+        if (active) {
+          showRate(active.dataset.key);
+        } else {
+          // По умолчанию показываем RUB → USDT
+          document.querySelector("button[data-key='rub_usdt_msk']").click();
+        }
       } catch (err) {
-        console.error('Ошибка при загрузке курса:', err);
+        console.error('Ошибка загрузки курса:', err);
+        errorEl.textContent = '⚠️ Не удалось загрузить актуальный курс. Пожалуйста, обновите страницу.';
+        errorEl.style.display = 'block';
+        rateEl.innerHTML = '<div class="rate-placeholder">Ошибка загрузки</div>';
       }
     }
 
-    function updateUI() {
-      if (!rates) return;
-      const active = document.querySelector("button.active");
-      if (active) showRate(active.dataset.key);
-    }
-
     function showRate(key) {
+      if (!rates) {
+        console.warn('Курсы ещё не загружены');
+        return;
+      }
+      
       const labelEl = document.getElementById("label");
       const rateEl = document.getElementById("rate");
       const updatedEl = document.getElementById("updated");
@@ -380,10 +395,15 @@
         rateEl.innerHTML = `<span class="rate-value">${rate.toFixed(6)}</span><span class="rate-unit">USDT за 1 RUB</span>`;
       }
 
-      const d = new Date(rates.updated_at);
-      updatedEl.textContent = `Обновлено: ${d.toLocaleString("ru-RU")}`;
+      if (rates.updated_at) {
+        const d = new Date(rates.updated_at);
+        updatedEl.textContent = `Обновлено: ${d.toLocaleString("ru-RU")}`;
+      } else {
+        updatedEl.textContent = "";
+      }
     }
 
+    // Обработчики кнопок
     document.querySelectorAll("button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
@@ -392,15 +412,11 @@
       });
     });
 
+    // Загружаем курсы при старте
     loadRates();
-    setTimeout(() => {
-      const firstBtn = document.querySelector("button[data-key='rub_usdt_msk']");
-      if (firstBtn) {
-        firstBtn.click();
-      }
-    }, 50);
-
-    setInterval(loadRates, 2 * 60 * 1000);
+    
+    // Автообновление каждые 30 секунд
+    setInterval(loadRates, 30000);
   </script>
 </body>
 </html>
