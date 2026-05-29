@@ -27,7 +27,6 @@
       overflow: hidden;
     }
 
-    /* Фон с градиентными пятнами */
     body::before,
     body::after {
       content: '';
@@ -321,11 +320,32 @@
 
   <script>
     let rates = null;
+    let updateCounter = 0;
 
     async function loadRates() {
-      const res = await fetch("https://exchange.dan-svistunov.workers.dev?" + Date.now());
-      rates = await res.json();
-      updateUI();
+      updateCounter++;
+      const cacheBuster = `t=${Date.now()}&n=${updateCounter}`;
+      
+      try {
+        const res = await fetch(`https://exchange.dan-svistunov.workers.dev/?${cacheBuster}`, {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (!res.ok) {
+          console.error('Ошибка загрузки курса:', res.status);
+          return;
+        }
+        
+        rates = await res.json();
+        console.log('Курс обновлён:', rates);
+        updateUI();
+      } catch (err) {
+        console.error('Ошибка при загрузке курса:', err);
+      }
     }
 
     function updateUI() {
@@ -373,7 +393,6 @@
     });
 
     loadRates();
-    // Показать первый курс сразу
     setTimeout(() => {
       const firstBtn = document.querySelector("button[data-key='rub_usdt_msk']");
       if (firstBtn) {
