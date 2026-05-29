@@ -30,13 +30,23 @@ jobs:
       - name: Run rate fetcher
         run: python rate_fetcher.py
 
+      - name: Check if rate.json changed
+        id: check
+        run: |
+          if git diff --quiet rate.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit and push if changed
+        if: steps.check.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin
+          git checkout main
+          git pull --rebase origin main
           git add rate.json
-          git diff --quiet && git diff --staged --quiet || (
-            git commit -m "chore: update rate.json"
-          )
-          git pull --rebase
-          git push
+          git commit -m "chore: update rate.json"
+          git push origin main
