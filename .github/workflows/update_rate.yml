@@ -2,8 +2,7 @@ name: Update USDT Rate
 
 on:
   schedule:
-    # каждые 10 минут
-    - cron: "*/10 * * * *"
+    - cron: "*/1 * * * *"
   workflow_dispatch:
 
 env:
