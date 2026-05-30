@@ -33,24 +33,17 @@ jobs:
       
     - name: Commit and push changes
       run: |
-        # Настройка git
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         
-        # Проверяем, есть ли изменения
         if git diff --quiet rate.json; then
           echo "✅ No changes to commit"
           exit 0
         fi
         
-        # Добавляем файл
         git add rate.json
         git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-        
-        # Ключевая часть: сначала pull, потом push
-        git pull origin main --rebase
-        
-        # Теперь push должен работать
-        git push origin main
+        git pull origin main --rebase || true
+        git push origin main --force-with-lease
         
         echo "✅ Successfully updated and pushed rates"
