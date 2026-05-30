@@ -2,7 +2,7 @@ name: Update Exchange Rates
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
     - name: Run fetch script
       run: python fetch_rates.py
       
-    - name: Commit and force push
+    - name: Commit and push changes
       run: |
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -44,19 +44,13 @@ jobs:
         git add rate.json
         git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
         
-        # Сначала получаем последние изменения
+        # Получаем последние изменения и разрешаем конфликты
         git fetch origin main
+        git reset --soft origin/main
+        git add rate.json
+        git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
         
-        # Перебазируем наши изменения поверх последних
-        git rebase origin/main || {
-          echo "⚠️ Rebase failed, resolving conflict in rate.json..."
-          # При конфликте берём нашу версию
-          git checkout --ours rate.json
-          git add rate.json
-          git rebase --continue
-        }
-        
-        # Безопасный force push
+        # Пушим
         git push origin main --force-with-lease
         
         echo "✅ Successfully updated and pushed rates"
