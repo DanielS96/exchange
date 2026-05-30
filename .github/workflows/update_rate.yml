@@ -31,7 +31,7 @@ jobs:
     - name: Run fetch script
       run: python fetch_rates.py
       
-    - name: Commit and push changes
+    - name: Commit and force push
       run: |
         git config --local user.name "github-actions[bot]"
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -43,7 +43,20 @@ jobs:
         
         git add rate.json
         git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-        git pull origin main --rebase || true
+        
+        # Сначала получаем последние изменения
+        git fetch origin main
+        
+        # Перебазируем наши изменения поверх последних
+        git rebase origin/main || {
+          echo "⚠️ Rebase failed, resolving conflict in rate.json..."
+          # При конфликте берём нашу версию
+          git checkout --ours rate.json
+          git add rate.json
+          git rebase --continue
+        }
+        
+        # Безопасный force push
         git push origin main --force-with-lease
         
         echo "✅ Successfully updated and pushed rates"
