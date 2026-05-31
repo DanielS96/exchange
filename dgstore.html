@@ -2,13 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>FINØMEN.exchange — Курс RUB ↔ USDT TRC20 (с наценкой)</title>
+  <title>FINØMEN.exchange — Курс RUB → USDT</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* === ВЕСЬ ВАШ СТАРЫЙ CSS (скопируйте из index.html) === */
     * {
       margin: 0;
       padding: 0;
@@ -97,18 +96,6 @@
       letter-spacing: 0.02em;
     }
 
-    .badge {
-      display: inline-block;
-      background: rgba(99, 102, 241, 0.2);
-      border: 1px solid rgba(99, 102, 241, 0.5);
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      margin-top: 8px;
-      color: #a5b4fc;
-    }
-
     .card {
       background: rgba(30, 41, 59, 0.6);
       backdrop-filter: blur(20px);
@@ -116,63 +103,6 @@
       border-radius: 24px;
       padding: 28px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    button {
-      padding: 16px 20px;
-      border: 1px solid rgba(147, 162, 192, 0.2);
-      border-radius: 16px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: rgba(30, 41, 59, 0.8);
-      color: #94a3b8;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-family: 'Inter', sans-serif;
-      position: relative;
-      overflow: hidden;
-    }
-
-    button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-      opacity: 0;
-      transition: opacity 0.3s;
-      border-radius: 16px;
-    }
-
-    button:hover::before {
-      opacity: 1;
-    }
-
-    button:hover {
-      border-color: rgba(99, 102, 241, 0.5);
-      color: #e2e8f0;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
-    }
-
-    button.active {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      border-color: transparent;
-      color: #fff;
-      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    button.active::before {
-      opacity: 0;
     }
 
     .rate-box {
@@ -281,7 +211,6 @@
 
     @media (max-width: 480px) {
       h1 { font-size: 1.5rem; }
-      .buttons { grid-template-columns: 1fr; gap: 10px; }
       .rate { font-size: 1.5rem; flex-direction: column; gap: 4px; }
       .rate-value { font-size: 1.5rem; }
       .rate-unit { font-size: 0.85rem; }
@@ -293,18 +222,12 @@
   <div class="container">
     <div class="header">
       <h1>FINØMEN.exchange</h1>
-      <div class="subtitle">Москва • Курс с наценкой</div>
-      <div class="badge">💰 +3 RUB наценка</div>
+      <div class="subtitle">Москва • RUB → USDT</div>
     </div>
 
     <div class="card">
-      <div class="buttons">
-        <button data-key="rub_usdt_msk">RUB → USDT</button>
-        <button data-key="usdt_rub_msk">USDT → RUB</button>
-      </div>
-
       <div class="rate-box">
-        <div class="label" id="label">Выбери направление</div>
+        <div class="label" id="label">RUB → USDT (Москва)</div>
         <div class="rate" id="rate">
           <div class="rate-placeholder">Загрузка...</div>
         </div>
@@ -315,10 +238,9 @@
   </div>
 
   <script>
-    // ========== НАСТРОЙКИ НАЦЕНКИ ДЛЯ ЭТОЙ СТРАНИЦЫ ==========
-    const MARKUP_RUB_USDT = 3.0;   // наценка для RUB → USDT
-    const MARKUP_USDT_RUB = 3.0;   // наценка для USDT → RUB
-    // =========================================================
+    // ========== НАСТРОЙКИ НАЦЕНКИ ==========
+    const MARKUP_RUB_USDT = 3.0;   // наценка в рублях
+    // ======================================
 
     let rates = null;
 
@@ -338,13 +260,7 @@
         
         rates = await response.json();
         errorEl.style.display = 'none';
-        
-        const active = document.querySelector("button.active");
-        if (active) {
-          showRate(active.dataset.key);
-        } else {
-          document.querySelector("button[data-key='rub_usdt_msk']").click();
-        }
+        showRate();
       } catch (err) {
         console.error('Ошибка загрузки курса:', err);
         errorEl.textContent = '⚠️ Не удалось загрузить актуальный курс. Пожалуйста, обновите страницу.';
@@ -353,28 +269,16 @@
       }
     }
 
-    function showRate(key) {
+    function showRate() {
       if (!rates) return;
       
-      const labels = {
-        rub_usdt_msk: "RUB → USDT (Москва) с наценкой",
-        usdt_rub_msk: "USDT → RUB (Москва) с наценкой",
-      };
-
-      let displayRate;
-      if (key === "rub_usdt_msk") {
-        displayRate = rates.rub_usdt_msk + MARKUP_RUB_USDT;
-      } else {
-        displayRate = rates.usdt_rub_msk + MARKUP_USDT_RUB;
-      }
-
-      if (!displayRate) {
-        document.getElementById("label").textContent = "Ошибка данных";
+      const baseRate = rates.rub_usdt_msk;
+      if (!baseRate) {
         document.getElementById("rate").innerHTML = '<div class="rate-placeholder">Нет данных</div>';
         return;
       }
 
-      document.getElementById("label").textContent = labels[key];
+      const displayRate = baseRate + MARKUP_RUB_USDT;
       document.getElementById("rate").innerHTML = `<span class="rate-value">${displayRate.toFixed(6)}</span><span class="rate-unit">RUB за 1 USDT</span>`;
       
       if (rates.updated_at) {
@@ -382,14 +286,6 @@
         document.getElementById("updated").textContent = `Обновлено: ${d.toLocaleString("ru-RU")}`;
       }
     }
-
-    document.querySelectorAll("button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        showRate(btn.dataset.key);
-      });
-    });
 
     loadRates();
     setInterval(loadRates, 30000);
