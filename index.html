@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>FINØMEN.exchange — Курс RUB ↔ USDT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1228 100%);
+      color: #e2e8f0;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      top: -100px;
+      left: -100px;
+      animation: float1 8s ease-in-out infinite;
+    }
+
+    body::after {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: -50px;
+      right: -50px;
+      animation: float2 10s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(50px, 50px); }
+    }
+
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-40px, -60px); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-top: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(147, 162, 192, 0.15);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      padding: 16px 20px;
+      border: 1px solid rgba(147, 162, 192, 0.2);
+      border-radius: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(30, 41, 59, 0.8);
+      color: #94a3b8;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s;
+      border-radius: 16px;
+    }
+
+    button:hover::before {
+      opacity: 1;
+    }
+
+    button:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+      color: #e2e8f0;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+    }
+
+    button.active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    button.active::before {
+      opacity: 0;
+    }
+
+    .rate-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(147, 162, 192, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rate-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+    }
+
+    .label {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .rate {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 8px 0;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
+
+    .rate-value {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .rate-unit {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .rate-placeholder {
+      font-size: 1.1rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .updated {
+      color: #475569;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .updated::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .error-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      color: #f87171;
+      margin-top: 16px;
+    }
+
+    .chart-container {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(147, 162, 192, 0.15);
+      border-radius: 24px;
+      padding: 28px;
+      margin-top: 20px;
+    }
+
+    .chart-title {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .chart-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .chart-btn {
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(147, 162, 192, 0.3);
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .chart-btn:hover {
+      background: rgba(99, 102, 241, 0.4);
+      color: #e2e8f0;
+    }
+
+    .chart-btn.active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    canvas {
+      max-height: 350px;
+      width: 100%;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 12px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-top: 4px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 1.5rem; }
+      .buttons { grid-template-columns: 1fr; gap: 10px; }
+      .rate { font-size: 1.5rem; flex-direction: column; gap: 4px; }
+      .rate-value { font-size: 1.5rem; }
+      .rate-unit { font-size: 0.85rem; }
+      .card { padding: 22px; }
+      .chart-container { padding: 22px; }
+      .stats { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>FINØMEN.exchange</h1>
+    <div class="subtitle">Москва • Актуальный курс</div>
+  </div>
+
+  <div class="card">
+    <div class="buttons">
+      <button data-key="rub_usdt_msk">RUB → USDT</button>
+      <button data-key="usdt_rub_msk">USDT → RUB</button>
+    </div>
+
+    <div class="rate-box">
+      <div class="label" id="label">Выбери направление</div>
+      <div class="rate" id="rate">
+        <div class="rate-placeholder">Загрузка...</div>
+      </div>
+      <div class="updated" id="updated"></div>
+      <div id="error" style="display: none;" class="error-badge"></div>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-title" id="chartTitle">📈 Динамика курса RUB → USDT</div>
+    <div class="chart-controls">
+      <button class="chart-btn" data-range="1h">1 час</button>
+      <button class="chart-btn" data-range="24h">24 часа</button>
+      <button class="chart-btn" data-range="7d">7 дней</button>
+      <button class="chart-btn" data-range="30d">30 дней</button>
+    </div>
+    <canvas id="rateChart"></canvas>
+    <div class="stats" id="stats"></div>
+  </div>
+</div>
+
+<script>
+  let rates = null;
+  let chart = null;
+  let fullHistoryRub = [];
+  let fullHistoryUsdt = [];
+  let currentRange = '1h';
+  let currentDirection = 'rub_usdt_msk';
+
+  async function loadRates() {
+    const rateEl = document.getElementById("rate");
+    const errorEl = document.getElementById("error");
+    
+    try {
+      const response = await fetch(`rate.json?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      rates = await response.json();
+      errorEl.style.display = 'none';
+      
+      const active = document.querySelector("button.active");
+      if (active) {
+        showRate(active.dataset.key);
+      } else {
+        document.querySelector("button[data-key='rub_usdt_msk']").click();
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки курса:', err);
+      errorEl.textContent = '⚠️ Не удалось загрузить актуальный курс. Пожалуйста, обновите страницу.';
+      errorEl.style.display = 'block';
+      rateEl.innerHTML = '<div class="rate-placeholder">Ошибка загрузки</div>';
+    }
+  }
+
+  function showRate(key) {
+    if (!rates) return;
+    
+    currentDirection = key;
+    
+    const labelEl = document.getElementById("label");
+    const rateEl = document.getElementById("rate");
+    const updatedEl = document.getElementById("updated");
+    const chartTitle = document.getElementById("chartTitle");
+
+    const labels = {
+      rub_usdt_msk: "RUB → USDT (Москва) — Покупка USDT",
+      usdt_rub_msk: "USDT → RUB (Москва) — Продажа USDT",
+    };
+
+    const chartTitles = {
+      rub_usdt_msk: "📈 Динамика курса покупки USDT (RUB → USDT)",
+      usdt_rub_msk: "📈 Динамика курса продажи USDT (USDT → RUB)",
+    };
+
+    const rate = rates[key];
+    if (!rate) {
+      labelEl.textContent = "Ошибка данных";
+      rateEl.innerHTML = '<div class="rate-placeholder">Нет данных</div>';
+      updatedEl.textContent = "";
+      return;
+    }
+
+    labelEl.textContent = labels[key];
+    chartTitle.textContent = chartTitles[key];
+    rateEl.innerHTML = `<span class="rate-value">${rate.toFixed(6)}</span><span class="rate-unit">RUB за 1 USDT</span>`;
+
+    if (rates.updated_at) {
+      const d = new Date(rates.updated_at);
+      updatedEl.textContent = `Обновлено: ${d.toLocaleString("ru-RU")}`;
+    }
+    
+    updateChart();
+  }
+
+  function filterHistoryByRange(range, history) {
+    if (!history.length) return [];
+    const now = new Date();
+    let startDate;
+    switch(range) {
+      case '1h': startDate = new Date(now.getTime() - 60*60*1000); break;
+      case '24h': startDate = new Date(now.getTime() - 24*3600*1000); break;
+      case '7d': startDate = new Date(now.getTime() - 7*24*3600*1000); break;
+      case '30d': startDate = new Date(now.getTime() - 30*24*3600*1000); break;
+      default: return history;
+    }
+    return history.filter(item => new Date(item.time) >= startDate);
+  }
+
+  function calculateStats(filteredHistory) {
+    if (!filteredHistory.length) return null;
+    const ratesArr = filteredHistory.map(item => item.rate);
+    const min = Math.min(...ratesArr);
+    const max = Math.max(...ratesArr);
+    const first = ratesArr[0];
+    const last = ratesArr[ratesArr.length - 1];
+    const change = last - first;
+    const changePercent = (change / first) * 100;
+    return { min, max, first, last, change, changePercent };
+  }
+
+  function updateStats(filteredHistory) {
+    const stats = calculateStats(filteredHistory);
+    if (!stats) return;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">Минимум</div><div class="stat-value">${stats.min.toFixed(6)}</div></div>
+      <div class="stat-card"><div class="stat-label">Максимум</div><div class="stat-value">${stats.max.toFixed(6)}</div></div>
+      <div class="stat-card"><div class="stat-label">Изменение</div><div class="stat-value" style="color: ${stats.change >= 0 ? '#a5b4fc' : '#f87171'}">${stats.change >= 0 ? '+' : ''}${stats.change.toFixed(6)} (${stats.changePercent.toFixed(2)}%)</div></div>
+      <div class="stat-card"><div class="stat-label">Текущий</div><div class="stat-value">${stats.last.toFixed(6)}</div></div>
+    `;
+  }
+
+  function updateChart() {
+    let currentHistory = (currentDirection === 'rub_usdt_msk') ? fullHistoryRub : fullHistoryUsdt;
+    
+    if (!currentHistory.length) {
+      return;
+    }
+    
+    const filteredHistory = filterHistoryByRange(currentRange, currentHistory);
+    if (filteredHistory.length === 0) return;
+    
+    const times = filteredHistory.map(item => item.time);
+    const ratesData = filteredHistory.map(item => item.rate);
+    
+    const statsData = filteredHistory.map(item => ({ rate: item.rate }));
+    const stats = calculateStats(statsData);
+    if (stats) updateStats(statsData);
+    
+    if (chart) {
+      chart.data.labels = times;
+      chart.data.datasets[0].data = ratesData;
+      chart.update();
+    } else {
+      const ctx = document.getElementById('rateChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: times,
+          datasets: [{
+            data: ratesData,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderWidth: 2,
+            pointRadius: 2,
+            pointBackgroundColor: '#a5b4fc',
+            pointBorderColor: '#0a0e27',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: { 
+              callbacks: { 
+                label: (ctx) => {
+                  return `${ctx.parsed.y.toFixed(6)} RUB за 1 USDT`;
+                }
+              } 
+            }
+          },
+          scales: {
+            y: { 
+              grid: { color: 'rgba(147, 162, 192, 0.1)' }, 
+              ticks: { color: '#94a3b8' } 
+            },
+            x: { 
+              display: false
+            }
+          }
+        }
+      });
+    }
+  }
+
+  async function loadHistory() {
+    try {
+      const response = await fetch(`history.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) return;
+      const history = await response.json();
+      fullHistoryRub = history.rub_usdt_history || [];
+      fullHistoryUsdt = history.usdt_rub_history || [];
+      
+      if ((currentDirection === 'rub_usdt_msk' && fullHistoryRub.length) || 
+          (currentDirection === 'usdt_rub_msk' && fullHistoryUsdt.length)) {
+        updateChart();
+      }
+    } catch (err) { console.error(err); }
+  }
+
+  // Обработчики кнопок направлений
+  document.querySelectorAll("button[data-key]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("button[data-key]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      showRate(btn.dataset.key);
+    });
+  });
+
+  // Обработчики кнопок диапазонов графика
+  document.querySelectorAll('.chart-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRange = btn.dataset.range;
+      updateChart();
+    });
+  });
+
+  // Устанавливаем активную кнопку "1 час" по умолчанию
+  document.querySelector('.chart-btn[data-range="1h"]').classList.add('active');
+  
+  // Устанавливаем активную кнопку направления RUB → USDT по умолчанию
+  document.querySelector('button[data-key="rub_usdt_msk"]').classList.add('active');
+
+  loadRates();
+  loadHistory();
+  setInterval(() => { loadRates(); loadHistory(); }, 30000);
+</script>
+</body>
+</html>
