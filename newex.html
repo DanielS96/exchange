@@ -143,12 +143,12 @@
     </div>
   </div>
   <div class="chart-container">
-    <div class="chart-title">📈 Динамика курса RUB за 1 USDT</div>
+    <div class="chart-title">📈 Динамика курса RUB → USDT</div>
     <div class="chart-controls">
-      <button class="chart-btn" data-range="day">24 часа</button>
-      <button class="chart-btn" data-range="week">7 дней</button>
-      <button class="chart-btn active" data-range="month">30 дней</button>
-      <button class="chart-btn" data-range="all">Всё время</button>
+      <button class="chart-btn" data-range="1h">1 час</button>
+      <button class="chart-btn" data-range="24h">24 часа</button>
+      <button class="chart-btn" data-range="7d">7 дней</button>
+      <button class="chart-btn active" data-range="30d">30 дней</button>
     </div>
     <canvas id="rateChart"></canvas>
     <div class="stats" id="stats"></div>
@@ -160,7 +160,7 @@
   let rates = null;
   let chart = null;
   let fullHistory = [];
-  let currentRange = 'month';
+  let currentRange = '30d';
 
   async function loadRates() {
     try {
@@ -191,9 +191,10 @@
     const now = new Date();
     let startDate;
     switch(range) {
-      case 'day': startDate = new Date(now.getTime() - 24*3600*1000); break;
-      case 'week': startDate = new Date(now.getTime() - 7*24*3600*1000); break;
-      case 'month': startDate = new Date(now.getTime() - 30*24*3600*1000); break;
+      case '1h': startDate = new Date(now.getTime() - 60*60*1000); break;
+      case '24h': startDate = new Date(now.getTime() - 24*3600*1000); break;
+      case '7d': startDate = new Date(now.getTime() - 7*24*3600*1000); break;
+      case '30d': startDate = new Date(now.getTime() - 30*24*3600*1000); break;
       default: return fullHistory;
     }
     return fullHistory.filter(item => new Date(item.time) >= startDate);
@@ -244,7 +245,6 @@
         data: {
           labels: times,
           datasets: [{
-            label: `Курс RUB за 1 USDT (с наценкой ${MARKUP_RUB_USDT} руб)`,
             data: ratesWithMarkup,
             borderColor: '#10b981',
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -259,14 +259,17 @@
         options: {
           responsive: true,
           maintainAspectRatio: true,
-          interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: { labels: { color: '#99f6e4', font: { size: 12 } } },
+            legend: { display: false },
             tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y.toFixed(6)} RUB за 1 USDT` } }
           },
           scales: {
             y: { grid: { color: 'rgba(110, 231, 183, 0.1)' }, ticks: { color: '#99f6e4' } },
-            x: { grid: { color: 'rgba(110, 231, 183, 0.1)' }, ticks: { color: '#99f6e4', maxRotation: 45, autoSkip: true, maxTicksLimit: 10 } }
+            x: { 
+              grid: { color: 'rgba(110, 231, 183, 0.1)' }, 
+              ticks: { color: '#99f6e4', maxRotation: 45, autoSkip: true, maxTicksLimit: 10 },
+              title: { display: false }
+            }
           }
         }
       });
