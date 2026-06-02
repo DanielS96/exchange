@@ -19,12 +19,10 @@
       min-height: 100vh;
       background: linear-gradient(135deg, #0b3d3d 0%, #1a5c5c 50%, #0d3d3d 100%);
       color: #e2f0e8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     body::before,
@@ -70,11 +68,13 @@
       z-index: 1;
       max-width: 520px;
       width: 100%;
+      margin: 0 auto;
     }
 
     .header {
       text-align: center;
       margin-bottom: 32px;
+      padding-top: 20px;
     }
 
     h1 {
@@ -218,6 +218,7 @@
       .rate-unit { font-size: 0.85rem; }
       .card { padding: 22px; }
       .rate-box { padding: 24px 16px; }
+      .header { padding-top: 10px; }
     }
   </style>
 </head>
