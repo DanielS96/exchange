@@ -392,7 +392,7 @@
       <button class="chart-btn" data-range="1h">1 час</button>
       <button class="chart-btn" data-range="24h">24 часа</button>
       <button class="chart-btn" data-range="7d">7 дней</button>
-      <button class="chart-btn active" data-range="30d">30 дней</button>
+      <button class="chart-btn" data-range="30d">30 дней</button>
     </div>
     <canvas id="rateChart"></canvas>
     <div class="stats" id="stats"></div>
@@ -402,9 +402,9 @@
 <script>
   let rates = null;
   let chart = null;
-  let fullHistoryRub = [];    // история курса ПОКУПКИ USDT (RUB→USDT)
-  let fullHistoryUsdt = [];   // история курса ПРОДАЖИ USDT (USDT→RUB)
-  let currentRange = '30d';
+  let fullHistoryRub = [];
+  let fullHistoryUsdt = [];
+  let currentRange = '1h';
   let currentDirection = 'rub_usdt_msk';
 
   async function loadRates() {
@@ -475,7 +475,6 @@
       updatedEl.textContent = `Обновлено: ${d.toLocaleString("ru-RU")}`;
     }
     
-    // Обновляем график при смене направления
     updateChart();
   }
 
@@ -517,11 +516,9 @@
   }
 
   function updateChart() {
-    // Выбираем нужную историю в зависимости от направления
     let currentHistory = (currentDirection === 'rub_usdt_msk') ? fullHistoryRub : fullHistoryUsdt;
     
     if (!currentHistory.length) {
-      console.log('Нет истории для направления:', currentDirection);
       return;
     }
     
@@ -531,7 +528,6 @@
     const times = filteredHistory.map(item => item.time);
     const ratesData = filteredHistory.map(item => item.rate);
     
-    // Статистика для текущего направления (без преобразований)
     const statsData = filteredHistory.map(item => ({ rate: item.rate }));
     const stats = calculateStats(statsData);
     if (stats) updateStats(statsData);
@@ -593,7 +589,6 @@
       fullHistoryRub = history.rub_usdt_history || [];
       fullHistoryUsdt = history.usdt_rub_history || [];
       
-      // Обновляем график, если есть данные для текущего направления
       if ((currentDirection === 'rub_usdt_msk' && fullHistoryRub.length) || 
           (currentDirection === 'usdt_rub_msk' && fullHistoryUsdt.length)) {
         updateChart();
@@ -619,6 +614,12 @@
       updateChart();
     });
   });
+
+  // Устанавливаем активную кнопку "1 час" по умолчанию
+  document.querySelector('.chart-btn[data-range="1h"]').classList.add('active');
+  
+  // Устанавливаем активную кнопку направления RUB → USDT по умолчанию
+  document.querySelector('button[data-key="rub_usdt_msk"]').classList.add('active');
 
   loadRates();
   loadHistory();
