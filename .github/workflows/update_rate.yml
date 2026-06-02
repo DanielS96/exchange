@@ -29,16 +29,21 @@ jobs:
         run: python fetch_rates.py
         
       - name: Commit and push changes
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          
-          if git diff --quiet rate.json; then
-            echo "✅ No changes to commit"
-            exit 0
-          fi
-          
-          git add rate.json
-          git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          git pull origin main --rebase || true
-          git push origin main --force-with-lease
+  run: |
+    git config --local user.name "github-actions[bot]"
+    git config --local user.email "github-actions[bot]@users.noreply.github.com"
+    
+    # Добавляем оба файла
+    git add rate.json history.json
+    
+    # Проверяем, есть ли изменения
+    if git diff --cached --quiet; then
+      echo "✅ No changes to commit"
+      exit 0
+    fi
+    
+    git commit -m "Update rates at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+    git pull origin main --rebase || true
+    git push origin main --force-with-lease
+    
+    echo "✅ Successfully updated and pushed rates"
