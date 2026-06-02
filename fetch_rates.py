@@ -64,43 +64,55 @@ def main():
         print("\n❌ Не удалось получить ни одного курса! Выход.")
         return
     
-    # 2. Загружаем существующую историю для RUB→USDT
+    # 2. Загружаем существующую историю
     print("\n3. Загружаем history.json...")
-    history = {"rub_usdt_history": []}
+    history = {
+        "rub_usdt_history": [],  # история курса RUB→USDT
+        "usdt_rub_history": []   # история курса USDT→RUB
+    }
     
     if os.path.exists("history.json"):
         try:
             with open("history.json", "r", encoding="utf-8") as f:
-                history = json.load(f)
-            print(f"   Загружено {len(history.get('rub_usdt_history', []))} записей")
+                loaded = json.load(f)
+                history["rub_usdt_history"] = loaded.get("rub_usdt_history", [])
+                history["usdt_rub_history"] = loaded.get("usdt_rub_history", [])
+            print(f"   Загружено: RUB→USDT: {len(history['rub_usdt_history'])} записей, USDT→RUB: {len(history['usdt_rub_history'])} записей")
         except Exception as e:
             print(f"   Ошибка чтения: {e}, создаём новый файл")
-            history = {"rub_usdt_history": []}
+            history = {"rub_usdt_history": [], "usdt_rub_history": []}
     else:
         print("   Файл history.json не существует, создаём новый")
     
-    # 3. Добавляем новую запись (только если курс получен)
+    # 3. Добавляем новые записи
+    now = datetime.now(timezone.utc).isoformat()
+    
     if rub_usdt is not None:
-        print("\n4. Добавляем новую запись в историю...")
-        new_entry = {
-            "time": datetime.now(timezone.utc).isoformat(),
+        print("\n4. Добавляем запись в RUB→USDT историю...")
+        history["rub_usdt_history"].append({
+            "time": now,
             "rate": rub_usdt
-        }
-        history["rub_usdt_history"].append(new_entry)
-        
+        })
         # Обрезаем историю
-        before = len(history["rub_usdt_history"])
         if len(history["rub_usdt_history"]) > MAX_HISTORY_POINTS:
             history["rub_usdt_history"] = history["rub_usdt_history"][-MAX_HISTORY_POINTS:]
-        after = len(history["rub_usdt_history"])
-        print(f"   Было: {before}, стало: {after} записей")
-        
-        history["last_update"] = new_entry["time"]
-    else:
-        print("\n4. ⚠️ Курс RUB→USDT не получен, история не обновлена")
+        print(f"   Теперь RUB→USDT записей: {len(history['rub_usdt_history'])}")
+    
+    if usdt_rub is not None:
+        print("\n5. Добавляем запись в USDT→RUB историю...")
+        history["usdt_rub_history"].append({
+            "time": now,
+            "rate": usdt_rub
+        })
+        # Обрезаем историю
+        if len(history["usdt_rub_history"]) > MAX_HISTORY_POINTS:
+            history["usdt_rub_history"] = history["usdt_rub_history"][-MAX_HISTORY_POINTS:]
+        print(f"   Теперь USDT→RUB записей: {len(history['usdt_rub_history'])}")
+    
+    history["last_update"] = now
     
     # 4. Сохраняем history.json
-    print("\n5. Сохраняем history.json...")
+    print("\n6. Сохраняем history.json...")
     try:
         with open("history.json", "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
@@ -111,7 +123,7 @@ def main():
         print(f"   ❌ Ошибка сохранения history.json: {e}")
     
     # 5. Сохраняем rate.json с обоими курсами
-    print("\n6. Сохраняем rate.json...")
+    print("\n7. Сохраняем rate.json...")
     
     # Загружаем старые курсы для fallback
     old_rates = {}
@@ -123,7 +135,7 @@ def main():
             pass
     
     rate_data = {
-        "updated_at": datetime.now(timezone.utc).isoformat()
+        "updated_at": now
     }
     
     if rub_usdt is not None:
@@ -150,10 +162,8 @@ def main():
     print("ПРОВЕРКА:")
     print(f"  - rate.json: rub_usdt_msk = {rate_data.get('rub_usdt_msk', 'N/A')}")
     print(f"  - rate.json: usdt_rub_msk = {rate_data.get('usdt_rub_msk', 'N/A')}")
-    print(f"  - history.json существует: {os.path.exists('history.json')}")
-    print(f"  - Записей в истории: {len(history.get('rub_usdt_history', []))}")
-    if len(history.get('rub_usdt_history', [])) > 0:
-        print(f"  - Последний курс в истории: {history['rub_usdt_history'][-1]['rate']}")
+    print(f"  - RUB→USDT история: {len(history.get('rub_usdt_history', []))} записей")
+    print(f"  - USDT→RUB история: {len(history.get('usdt_rub_history', []))} записей")
     print("=" * 50)
     print("✅ Готово!")
 
