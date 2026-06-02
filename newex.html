@@ -264,11 +264,12 @@
             tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y.toFixed(6)} RUB за 1 USDT` } }
           },
           scales: {
-            y: { grid: { color: 'rgba(110, 231, 183, 0.1)' }, ticks: { color: '#99f6e4' } },
-            x: { 
+            y: { 
               grid: { color: 'rgba(110, 231, 183, 0.1)' }, 
-              ticks: { color: '#99f6e4', maxRotation: 45, autoSkip: true, maxTicksLimit: 10 },
-              title: { display: false }
+              ticks: { color: '#99f6e4' } 
+            },
+            x: { 
+              display: false  // ПОЛНОСТЬЮ УБИРАЕМ ГОРИЗОНТАЛЬНУЮ ОСЬ
             }
           }
         }
