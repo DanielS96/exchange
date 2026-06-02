@@ -402,7 +402,8 @@
 <script>
   let rates = null;
   let chart = null;
-  let fullHistory = [];
+  let fullHistoryRub = [];    // история курса ПОКУПКИ USDT (RUB→USDT)
+  let fullHistoryUsdt = [];   // история курса ПРОДАЖИ USDT (USDT→RUB)
   let currentRange = '30d';
   let currentDirection = 'rub_usdt_msk';
 
@@ -448,13 +449,13 @@
     const chartTitle = document.getElementById("chartTitle");
 
     const labels = {
-      rub_usdt_msk: "RUB → USDT (Москва)",
-      usdt_rub_msk: "USDT → RUB (Москва)",
+      rub_usdt_msk: "RUB → USDT (Москва) — Покупка USDT",
+      usdt_rub_msk: "USDT → RUB (Москва) — Продажа USDT",
     };
 
     const chartTitles = {
-      rub_usdt_msk: "📈 Динамика курса RUB → USDT",
-      usdt_rub_msk: "📈 Динамика курса USDT → RUB",
+      rub_usdt_msk: "📈 Динамика курса покупки USDT (RUB → USDT)",
+      usdt_rub_msk: "📈 Динамика курса продажи USDT (USDT → RUB)",
     };
 
     const rate = rates[key];
@@ -475,13 +476,11 @@
     }
     
     // Обновляем график при смене направления
-    if (fullHistory.length) {
-      updateChart();
-    }
+    updateChart();
   }
 
-  function filterHistoryByRange(range, direction) {
-    if (!fullHistory.length) return [];
+  function filterHistoryByRange(range, history) {
+    if (!history.length) return [];
     const now = new Date();
     let startDate;
     switch(range) {
@@ -489,11 +488,9 @@
       case '24h': startDate = new Date(now.getTime() - 24*3600*1000); break;
       case '7d': startDate = new Date(now.getTime() - 7*24*3600*1000); break;
       case '30d': startDate = new Date(now.getTime() - 30*24*3600*1000); break;
-      default: return fullHistory;
+      default: return history;
     }
-    
-    // Фильтруем историю в зависимости от направления
-    return fullHistory.filter(item => new Date(item.time) >= startDate);
+    return history.filter(item => new Date(item.time) >= startDate);
   }
 
   function calculateStats(filteredHistory) {
@@ -520,24 +517,24 @@
   }
 
   function updateChart() {
-    if (!fullHistory.length) return;
+    // Выбираем нужную историю в зависимости от направления
+    let currentHistory = (currentDirection === 'rub_usdt_msk') ? fullHistoryRub : fullHistoryUsdt;
     
-    const filteredHistory = filterHistoryByRange(currentRange, currentDirection);
+    if (!currentHistory.length) {
+      console.log('Нет истории для направления:', currentDirection);
+      return;
+    }
+    
+    const filteredHistory = filterHistoryByRange(currentRange, currentHistory);
     if (filteredHistory.length === 0) return;
     
     const times = filteredHistory.map(item => item.time);
-    let ratesData;
+    const ratesData = filteredHistory.map(item => item.rate);
     
-    // Для RUB→USDT используем rub_usdt_history, для USDT→RUB нужно рассчитать обратный курс
-    if (currentDirection === 'rub_usdt_msk') {
-      ratesData = filteredHistory.map(item => item.rate);
-    } else {
-      // Для USDT→RUB показываем обратный курс (1 / курс)
-      ratesData = filteredHistory.map(item => 1 / item.rate);
-    }
-    
-    const stats = calculateStats(filteredHistory.map(item => ({ rate: currentDirection === 'rub_usdt_msk' ? item.rate : 1 / item.rate })));
-    if (stats) updateStats(filteredHistory.map(item => ({ rate: currentDirection === 'rub_usdt_msk' ? item.rate : 1 / item.rate })));
+    // Статистика для текущего направления (без преобразований)
+    const statsData = filteredHistory.map(item => ({ rate: item.rate }));
+    const stats = calculateStats(statsData);
+    if (stats) updateStats(statsData);
     
     if (chart) {
       chart.data.labels = times;
@@ -569,11 +566,7 @@
             tooltip: { 
               callbacks: { 
                 label: (ctx) => {
-                  if (currentDirection === 'rub_usdt_msk') {
-                    return `${ctx.parsed.y.toFixed(6)} RUB за 1 USDT`;
-                  } else {
-                    return `${ctx.parsed.y.toFixed(6)} USDT за 1 RUB`;
-                  }
+                  return `${ctx.parsed.y.toFixed(6)} RUB за 1 USDT`;
                 }
               } 
             }
@@ -597,8 +590,14 @@
       const response = await fetch(`history.json?t=${Date.now()}`, { cache: 'no-store' });
       if (!response.ok) return;
       const history = await response.json();
-      fullHistory = history.rub_usdt_history || [];
-      if (fullHistory.length) updateChart();
+      fullHistoryRub = history.rub_usdt_history || [];
+      fullHistoryUsdt = history.usdt_rub_history || [];
+      
+      // Обновляем график, если есть данные для текущего направления
+      if ((currentDirection === 'rub_usdt_msk' && fullHistoryRub.length) || 
+          (currentDirection === 'usdt_rub_msk' && fullHistoryUsdt.length)) {
+        updateChart();
+      }
     } catch (err) { console.error(err); }
   }
 
