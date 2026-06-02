@@ -1,27 +1,26 @@
 import re
 import json
 from datetime import datetime, timezone
-from collections import deque
 
 import requests
 from bs4 import BeautifulSoup
 
-# ========== НАСТРОЙКИ (без наценок) ==========
-# Здесь больше нет MARKUP_* переменных
-# ============================================
-
+# ========== НАСТРОЙКИ ==========
 URL_RUB_USDT = "https://www.bestchange.ru/cash-ruble-to-tether-trc20-in-msk.html"
 URL_USDT_RUB = "https://www.bestchange.ru/tether-trc20-to-cash-ruble-in-msk.html"
 CSS_RATE = "#undertable > div.m-hint > span:nth-child(2) > span:nth-child(5) > span"
 
-# Максимальное количество точек на графике (24 = 2 часа при обновлении каждые 5 минут)
-MAX_HISTORY_POINTS = 24
+# Максимальное количество точек на графике
+# 7 дней × 24 часа × 12 точек в час (каждые 5 минут) = 2016 точек
+MAX_HISTORY_POINTS = 2016  # ~1 неделя при обновлении каждые 5 минут
+# ==================================
 
 def load_history():
     """Загружает историю курсов из файла"""
     try:
         with open("history.json", "r", encoding="utf-8") as f:
             history = json.load(f)
+            # Оставляем только последние MAX_HISTORY_POINTS записей
             if "rub_usdt_history" in history:
                 history["rub_usdt_history"] = history["rub_usdt_history"][-MAX_HISTORY_POINTS:]
             return history
@@ -87,6 +86,7 @@ def main():
     
     # Загружаем историю
     history = load_history()
+    print(f"✓ Загружена история: {len(history['rub_usdt_history'])} записей")
     
     # Получаем базовый RUB → USDT (без наценки)
     rub_usdt = get_weighted_rate(URL_RUB_USDT)
@@ -100,9 +100,15 @@ def main():
             "time": now,
             "rate": rub_usdt
         })
+        
+        # Оставляем только последние MAX_HISTORY_POINTS записей
         if len(history["rub_usdt_history"]) > MAX_HISTORY_POINTS:
+            removed = len(history["rub_usdt_history"]) - MAX_HISTORY_POINTS
             history["rub_usdt_history"] = history["rub_usdt_history"][-MAX_HISTORY_POINTS:]
+            print(f"✓ Удалено {removed} старых записей, осталось {MAX_HISTORY_POINTS}")
+            
         history["last_update"] = now
+        print(f"✓ Всего в истории: {len(history['rub_usdt_history'])} записей")
         
     elif "rub_usdt_msk" in old_rates:
         rates["rub_usdt_msk"] = old_rates["rub_usdt_msk"]
@@ -127,9 +133,9 @@ def main():
     save_history(history)
 
     print("\n" + "=" * 50)
-    print("Базовые курсы сохранены в rate.json:")
-    print(json.dumps(rates, ensure_ascii=False, indent=2))
-    print("\nИстория сохранена в history.json (без наценок)")
+    print(f"✅ Базовые курсы сохранены в rate.json")
+    print(f"✅ История сохранена в history.json ({len(history['rub_usdt_history'])} записей)")
+    print(f"📊 Максимальный размер истории: {MAX_HISTORY_POINTS} записей (~1 неделя)")
     print("=" * 50)
 
 if __name__ == "__main__":
