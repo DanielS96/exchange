@@ -12,23 +12,23 @@ CSS_RATE = "#undertable > div.m-hint > span:nth-child(2) > span:nth-child(5) > s
 
 MAX_HISTORY_POINTS = 8640  # 30 дней
 
-def get_weighted_rate(url: str) -> float | None:
+def get_weighted_rate(url: str, name: str) -> float | None:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     }
     try:
-        print(f"  Запрос к {url[:50]}...")
+        print(f"  Запрос к {name}...")
         resp = requests.get(url, headers=headers, timeout=15)
         resp.raise_for_status()
     except Exception as e:
-        print(f"  ОШИБКА запроса: {e}")
+        print(f"  ❌ Ошибка запроса: {e}")
         return None
     
     soup = BeautifulSoup(resp.text, "html.parser")
     elements = soup.select(CSS_RATE)
     if not elements:
-        print(f"  Элемент не найден на странице")
+        print(f"  ❌ Элемент не найден на странице")
         return None
     
     text = elements[0].get_text(strip=True)
@@ -36,16 +36,16 @@ def get_weighted_rate(url: str) -> float | None:
     
     m = re.search(r"([\d.,]+)", text)
     if not m:
-        print(f"  Число не найдено")
+        print(f"  ❌ Число не найдено")
         return None
     
     rate_str = m.group(1).replace(",", ".")
     try:
         rate = float(rate_str)
-        print(f"  Курс: {rate}")
+        print(f"  ✅ Курс: {rate}")
         return rate
     except:
-        print(f"  Ошибка преобразования: {rate_str}")
+        print(f"  ❌ Ошибка преобразования: {rate_str}")
         return None
 
 def main():
@@ -53,17 +53,19 @@ def main():
     print("Запуск fetch_rates.py")
     print("=" * 50)
     
-    # 1. Получаем курс
+    # 1. Получаем оба курса
     print("\n1. Получаем курс RUB→USDT...")
-    rub_usdt = get_weighted_rate(URL_RUB_USDT)
-    if rub_usdt is None:
-        print("❌ Не удалось получить курс! Выход.")
+    rub_usdt = get_weighted_rate(URL_RUB_USDT, "RUB→USDT")
+    
+    print("\n2. Получаем курс USDT→RUB...")
+    usdt_rub = get_weighted_rate(URL_USDT_RUB, "USDT→RUB")
+    
+    if rub_usdt is None and usdt_rub is None:
+        print("\n❌ Не удалось получить ни одного курса! Выход.")
         return
     
-    print(f"\n✅ Текущий курс: {rub_usdt}")
-    
-    # 2. Загружаем существующую историю
-    print("\n2. Загружаем history.json...")
+    # 2. Загружаем существующую историю для RUB→USDT
+    print("\n3. Загружаем history.json...")
     history = {"rub_usdt_history": []}
     
     if os.path.exists("history.json"):
@@ -77,56 +79,81 @@ def main():
     else:
         print("   Файл history.json не существует, создаём новый")
     
-    # 3. Добавляем новую запись
-    print("\n3. Добавляем новую запись...")
-    new_entry = {
-        "time": datetime.now(timezone.utc).isoformat(),
-        "rate": rub_usdt
-    }
-    history["rub_usdt_history"].append(new_entry)
+    # 3. Добавляем новую запись (только если курс получен)
+    if rub_usdt is not None:
+        print("\n4. Добавляем новую запись в историю...")
+        new_entry = {
+            "time": datetime.now(timezone.utc).isoformat(),
+            "rate": rub_usdt
+        }
+        history["rub_usdt_history"].append(new_entry)
+        
+        # Обрезаем историю
+        before = len(history["rub_usdt_history"])
+        if len(history["rub_usdt_history"]) > MAX_HISTORY_POINTS:
+            history["rub_usdt_history"] = history["rub_usdt_history"][-MAX_HISTORY_POINTS:]
+        after = len(history["rub_usdt_history"])
+        print(f"   Было: {before}, стало: {after} записей")
+        
+        history["last_update"] = new_entry["time"]
+    else:
+        print("\n4. ⚠️ Курс RUB→USDT не получен, история не обновлена")
     
-    # 4. Обрезаем историю
-    before = len(history["rub_usdt_history"])
-    if len(history["rub_usdt_history"]) > MAX_HISTORY_POINTS:
-        history["rub_usdt_history"] = history["rub_usdt_history"][-MAX_HISTORY_POINTS:]
-    after = len(history["rub_usdt_history"])
-    print(f"   Было: {before}, стало: {after} записей")
-    
-    history["last_update"] = new_entry["time"]
-    
-    # 5. Сохраняем history.json
-    print("\n4. Сохраняем history.json...")
+    # 4. Сохраняем history.json
+    print("\n5. Сохраняем history.json...")
     try:
         with open("history.json", "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
         print("   ✅ history.json сохранён")
-        
-        # Проверяем, что записалось
         file_size = os.path.getsize("history.json")
         print(f"   Размер файла: {file_size} байт")
     except Exception as e:
         print(f"   ❌ Ошибка сохранения history.json: {e}")
     
-    # 6. Сохраняем rate.json
-    print("\n5. Сохраняем rate.json...")
+    # 5. Сохраняем rate.json с обоими курсами
+    print("\n6. Сохраняем rate.json...")
+    
+    # Загружаем старые курсы для fallback
+    old_rates = {}
+    if os.path.exists("rate.json"):
+        try:
+            with open("rate.json", "r", encoding="utf-8") as f:
+                old_rates = json.load(f)
+        except:
+            pass
+    
+    rate_data = {
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    if rub_usdt is not None:
+        rate_data["rub_usdt_msk"] = rub_usdt
+    elif "rub_usdt_msk" in old_rates:
+        rate_data["rub_usdt_msk"] = old_rates["rub_usdt_msk"]
+        print(f"   ⚠️ Использую старый RUB→USDT: {old_rates['rub_usdt_msk']}")
+    
+    if usdt_rub is not None:
+        rate_data["usdt_rub_msk"] = usdt_rub
+    elif "usdt_rub_msk" in old_rates:
+        rate_data["usdt_rub_msk"] = old_rates["usdt_rub_msk"]
+        print(f"   ⚠️ Использую старый USDT→RUB: {old_rates['usdt_rub_msk']}")
+    
     try:
         with open("rate.json", "w", encoding="utf-8") as f:
-            json.dump({
-                "rub_usdt_msk": rub_usdt,
-                "usdt_rub_msk": 0,
-                "updated_at": new_entry["time"]
-            }, f, ensure_ascii=False, indent=2)
+            json.dump(rate_data, f, ensure_ascii=False, indent=2)
         print("   ✅ rate.json сохранён")
     except Exception as e:
         print(f"   ❌ Ошибка сохранения rate.json: {e}")
     
-    # 7. Финальная проверка
+    # 6. Финальная проверка
     print("\n" + "=" * 50)
     print("ПРОВЕРКА:")
+    print(f"  - rate.json: rub_usdt_msk = {rate_data.get('rub_usdt_msk', 'N/A')}")
+    print(f"  - rate.json: usdt_rub_msk = {rate_data.get('usdt_rub_msk', 'N/A')}")
     print(f"  - history.json существует: {os.path.exists('history.json')}")
-    print(f"  - Записей в истории: {len(history['rub_usdt_history'])}")
-    if len(history['rub_usdt_history']) > 0:
-        print(f"  - Последняя запись: {history['rub_usdt_history'][-1]}")
+    print(f"  - Записей в истории: {len(history.get('rub_usdt_history', []))}")
+    if len(history.get('rub_usdt_history', [])) > 0:
+        print(f"  - Последний курс в истории: {history['rub_usdt_history'][-1]['rate']}")
     print("=" * 50)
     print("✅ Готово!")
 
