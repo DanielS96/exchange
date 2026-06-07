@@ -245,21 +245,25 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 20px;
       flex-direction: row;
+      flex-wrap: nowrap;
     }
 
     .chart-btn {
       background: rgba(99, 102, 241, 0.2);
       border: 1px solid rgba(147, 162, 192, 0.3);
       border-radius: 20px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       color: #94a3b8;
       font-size: 0.7rem;
       cursor: pointer;
       transition: all 0.3s;
-      flex: 0 0 auto;
+      min-width: 65px;
+      max-width: 80px;
+      text-align: center;
+      white-space: nowrap;
     }
 
     .chart-btn:hover {
@@ -352,8 +356,10 @@
       }
       
       .chart-btn {
-        padding: 5px 12px;
-        font-size: 0.68rem;
+        padding: 5px 8px;
+        font-size: 0.65rem;
+        min-width: 55px;
+        max-width: 70px;
       }
       
       .chart-controls {
@@ -363,8 +369,10 @@
 
     @media (max-width: 400px) {
       .chart-btn {
-        padding: 4px 10px;
-        font-size: 0.65rem;
+        padding: 4px 6px;
+        font-size: 0.6rem;
+        min-width: 48px;
+        max-width: 60px;
       }
       
       .stat-value {
@@ -373,6 +381,10 @@
       
       .stat-label {
         font-size: 0.55rem;
+      }
+      
+      .chart-controls {
+        gap: 5px;
       }
     }
   </style>
@@ -403,9 +415,9 @@
   <div class="chart-container">
     <div class="chart-title" id="chartTitle">ДИНАМИКА КУРСА RUB → USDT</div>
     <div class="chart-controls">
-      <button class="chart-btn" data-range="1h">1 час</button>
-      <button class="chart-btn" data-range="24h">24 часа</button>
-      <button class="chart-btn" data-range="7d">7 дней</button>
+      <button class="chart-btn" data-range="1h">1ч</button>
+      <button class="chart-btn" data-range="24h">24ч</button>
+      <button class="chart-btn" data-range="7d">7д</button>
     </div>
     <div class="chart-wrapper">
       <canvas id="rateChart"></canvas>
