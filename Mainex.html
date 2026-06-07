@@ -281,7 +281,7 @@
     .chart-title {
       color: #94a3b8;
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 600;
       margin-bottom: 16px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -294,7 +294,7 @@
       justify-content: center;
       gap: 8px;
       margin-bottom: 20px;
-      flex-wrap: wrap;
+      flex-direction: row;
     }
 
     .chart-btn {
@@ -476,7 +476,7 @@
   </div>
 
   <div class="chart-container">
-    <div class="chart-title" id="chartTitle">📈 Динамика курса RUB → USDT</div>
+    <div class="chart-title" id="chartTitle">ДИНАМИКА КУРСА RUB → USDT</div>
     <div class="chart-controls">
       <button class="chart-btn" data-range="1h">1 час</button>
       <button class="chart-btn" data-range="24h">24 часа</button>
@@ -542,8 +542,8 @@
     };
 
     const chartTitles = {
-      rub_usdt_msk: "📈 Динамика курса покупки USDT (RUB → USDT)",
-      usdt_rub_msk: "📈 Динамика курса продажи USDT (USDT → RUB)",
+      rub_usdt_msk: "ДИНАМИКА КУРСА RUB → USDT",
+      usdt_rub_msk: "ДИНАМИКА КУРСА USDT → RUB",
     };
 
     const rate = rates[key];
@@ -595,10 +595,10 @@
     const stats = calculateStats(filteredHistory);
     if (!stats) return;
     document.getElementById('stats').innerHTML = `
-      <div class="stat-card"><div class="stat-label">Минимум</div><div class="stat-value">${stats.min.toFixed(6)}</div></div>
-      <div class="stat-card"><div class="stat-label">Максимум</div><div class="stat-value">${stats.max.toFixed(6)}</div></div>
-      <div class="stat-card"><div class="stat-label">Изменение</div><div class="stat-value" style="color: ${stats.change >= 0 ? '#a5b4fc' : '#f87171'}">${stats.change >= 0 ? '+' : ''}${stats.change.toFixed(6)} (${stats.changePercent.toFixed(2)}%)</div></div>
-      <div class="stat-card"><div class="stat-label">Текущий</div><div class="stat-value">${stats.last.toFixed(6)}</div></div>
+      <div class="stat-card"><div class="stat-label">Минимум</div><div class="stat-value">${stats.min.toFixed(3)}</div></div>
+      <div class="stat-card"><div class="stat-label">Максимум</div><div class="stat-value">${stats.max.toFixed(3)}</div></div>
+      <div class="stat-card"><div class="stat-label">Изменение</div><div class="stat-value" style="color: ${stats.change >= 0 ? '#a5b4fc' : '#f87171'}">${stats.change >= 0 ? '+' : ''}${stats.change.toFixed(3)} (${stats.changePercent.toFixed(2)}%)</div></div>
+      <div class="stat-card"><div class="stat-label">Текущий</div><div class="stat-value">${stats.last.toFixed(3)}</div></div>
     `;
   }
 
