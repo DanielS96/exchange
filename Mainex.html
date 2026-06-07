@@ -25,7 +25,7 @@
       min-height: 100vh;
       background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1228 100%);
       color: #e2e8f0;
-      padding: 12px;
+      padding: 16px 12px 12px 12px;
       position: relative;
       width: 100%;
       max-width: 100vw;
@@ -77,13 +77,13 @@
       max-width: 600px;
       width: 100%;
       margin: 0 auto;
-      overflow-x: hidden;
+      overflow-x: visible;
     }
 
     .header {
       text-align: center;
       margin-bottom: 20px;
-      padding-top: 0;
+      padding-top: 12px;
     }
 
     h1 {
@@ -93,7 +93,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       letter-spacing: -0.03em;
       line-height: 1.2;
     }
@@ -237,29 +237,29 @@
       color: #94a3b8;
       font-size: 0.7rem;
       font-weight: 600;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       text-align: center;
     }
 
     .chart-controls {
       display: flex;
       justify-content: center;
+      align-items: center;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       flex-direction: row;
-      flex-wrap: nowrap;
     }
 
     .chart-btn {
       background: rgba(99, 102, 241, 0.2);
       border: 1px solid rgba(147, 162, 192, 0.3);
-      border-radius: 8px;
-      padding: 5px 12px;
+      border-radius: 20px;
+      padding: 6px 14px;
       color: #94a3b8;
       font-size: 0.7rem;
       cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
+      transition: all 0.3s;
+      flex: 0 0 auto;
     }
 
     .chart-btn:hover {
@@ -269,6 +269,7 @@
 
     .chart-btn.active {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-color: transparent;
       color: #fff;
     }
 
@@ -311,7 +312,6 @@
       font-weight: 600;
       color: #a5b4fc;
       margin-top: 3px;
-      word-break: keep-all;
     }
 
     @keyframes pulse {
@@ -322,11 +322,12 @@
     /* Мобильные стили */
     @media (max-width: 600px) {
       body {
-        padding: 8px;
+        padding: 12px 10px 10px 10px;
       }
       
-      .container {
-        max-width: 100%;
+      .header {
+        padding-top: 8px;
+        margin-bottom: 16px;
       }
       
       .card {
@@ -351,8 +352,8 @@
       }
       
       .chart-btn {
-        padding: 4px 8px;
-        font-size: 0.65rem;
+        padding: 5px 12px;
+        font-size: 0.68rem;
       }
       
       .chart-controls {
@@ -362,8 +363,8 @@
 
     @media (max-width: 400px) {
       .chart-btn {
-        padding: 4px 6px;
-        font-size: 0.6rem;
+        padding: 4px 10px;
+        font-size: 0.65rem;
       }
       
       .stat-value {
@@ -598,7 +599,7 @@
     } catch (err) { console.error(err); }
   }
 
-  // Обработчики кнопок
+  // Обработчики кнопок направлений
   document.querySelectorAll("button[data-key]").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("button[data-key]").forEach(b => b.classList.remove("active"));
@@ -607,6 +608,7 @@
     });
   });
 
+  // Обработчики кнопок диапазонов графика
   document.querySelectorAll('.chart-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
