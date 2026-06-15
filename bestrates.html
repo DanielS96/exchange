@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Best Rates — RUB → USDT</title>
+  <title>Best Rates — Ордер исполнен</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes, viewport-fit=cover" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +29,9 @@
       width: 100%;
       max-width: 100vw;
       overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     body::before,
@@ -73,306 +76,278 @@
     .container {
       position: relative;
       z-index: 1;
-      max-width: 600px;
+      max-width: 500px;
       width: 100%;
       margin: 0 auto;
-      overflow-x: visible;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-top: 12px;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff 0%, #fbbf24 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 6px;
-      letter-spacing: -0.03em;
-      line-height: 1.2;
-    }
-
-    .subtitle {
-      color: #fcd34d;
-      font-size: 0.85rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      opacity: 0.9;
-    }
-
-    .card {
+    .success-card {
       background: rgba(30, 41, 59, 0.6);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(251, 191, 36, 0.2);
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(251, 191, 36, 0.1);
-      margin-bottom: 16px;
-      width: 100%;
+      border-radius: 32px;
+      padding: 32px 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: fadeInUp 0.6s ease-out;
     }
 
-    .rate-box {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(251, 191, 36, 0.15);
-      border-radius: 20px;
-      padding: 20px;
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .success-header {
       text-align: center;
-      position: relative;
-      overflow: hidden;
+      margin-bottom: 32px;
     }
 
-    .rate-box::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.6), transparent);
-    }
-
-    .label {
-      color: #fcd34d;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .rate {
-      font-size: 1.6rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff 0%, #fbbf24 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 8px 0;
-      letter-spacing: -0.02em;
-      line-height: 1.3;
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .rate-value {
-      font-size: 1.6rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff 0%, #fbbf24 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .rate-unit {
-      font-size: 0.85rem;
-      color: #fbbf24;
-      font-weight: 500;
-      white-space: normal;
-    }
-
-    .rate-placeholder {
-      font-size: 1rem;
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .updated {
-      color: #5e9e8e;
-      font-size: 0.65rem;
-      font-weight: 500;
-      margin-top: 12px;
+    .checkmark {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      margin: 0 auto 20px;
+      animation: scaleIn 0.4s ease-out 0.2s both;
     }
 
-    .updated::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #fbbf24;
-      animation: pulse 2s ease-in-out infinite;
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
     }
 
-    .error-badge {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-size: 0.7rem;
-      color: #fca5a5;
-      margin-top: 12px;
+    .checkmark svg {
+      width: 48px;
+      height: 48px;
+      stroke: white;
+      stroke-width: 2;
     }
 
-    .date-container {
-      margin-bottom: 20px;
-    }
-
-    .date-label {
-      color: #fcd34d;
-      font-size: 0.7rem;
-      font-weight: 500;
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
-    .date-input {
-      width: 100%;
-      padding: 12px;
-      background: rgba(15, 23, 42, 0.6);
+    .success-subtitle {
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+
+    .details {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(251, 191, 36, 0.1);
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(251, 191, 36, 0.1);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+
+    .amount-large {
+      font-size: 1.3rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      color: #10b981;
+      margin-left: 8px;
+    }
+
+    .warning-note {
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .warning-icon {
+      font-size: 1.2rem;
+    }
+
+    .warning-text {
+      font-size: 0.75rem;
+      color: #fcd34d;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #e2b714, #f59e0b);
+      border: none;
+      color: #0f172a;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(226, 183, 20, 0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(51, 65, 85, 0.6);
       border: 1px solid rgba(251, 191, 36, 0.3);
-      border-radius: 12px;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-      cursor: pointer;
+      color: #fcd34d;
     }
 
-    .date-input::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      cursor: pointer;
+    .btn-secondary:hover {
+      background: rgba(251, 191, 36, 0.15);
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 12px 10px 10px 10px;
+    @media (max-width: 480px) {
+      .success-card {
+        padding: 24px 20px;
       }
       
-      .header {
-        padding-top: 8px;
-        margin-bottom: 16px;
+      .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
       }
       
-      h1 {
-        font-size: 1.5rem;
+      .detail-value {
+        font-size: 1rem;
       }
       
-      .subtitle {
-        font-size: 0.75rem;
+      .action-buttons {
+        flex-direction: column;
       }
       
-      .card {
-        padding: 16px;
+      .checkmark {
+        width: 60px;
+        height: 60px;
       }
       
-      .rate {
+      .checkmark svg {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .success-title {
         font-size: 1.3rem;
-      }
-      
-      .rate-value {
-        font-size: 1.3rem;
-      }
-      
-      .rate-unit {
-        font-size: 0.75rem;
-      }
-      
-      .label {
-        font-size: 0.7rem;
-      }
-      
-      .date-input {
-        padding: 10px;
-        font-size: 0.8rem;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>Best Rates</h1>
-      <div class="subtitle">Москва • RUB → USDT</div>
-    </div>
-
-    <div class="card">
-      <div class="date-container">
-        <div class="date-label">📅 ВЫБЕРИТЕ ДАТУ</div>
-        <input type="date" class="date-input" id="datePicker" value="2026-05-04">
+    <div class="success-card">
+      <div class="success-header">
+        <div class="checkmark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h1 class="success-title">Ордер на обмен исполнен</h1>
+        <p class="success-subtitle">Ваша транзакция успешно завершена</p>
       </div>
 
-      <div class="rate-box">
-        <div class="label" id="label">RUB → USDT (Москва)</div>
-        <div class="rate" id="rate">
-          <div class="rate-placeholder">Загрузка...</div>
+      <div class="details">
+        <div class="detail-row">
+          <div class="detail-label">
+            <span>💰</span> Сумма в рублях
+          </div>
+          <div class="detail-value amount-large">317 000.00 RUB</div>
         </div>
-        <div class="updated" id="updated"></div>
-        <div id="error" style="display: none;" class="error-badge"></div>
+        <div class="detail-row">
+          <div class="detail-label">
+            <span>📈</span> Курс обмена
+          </div>
+          <div class="detail-value">1 USDT = 79.21 RUB</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">
+            <span>💎</span> Сумма пополнения
+          </div>
+          <div class="detail-value amount-large">4 002.02 USDT</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">
+            <span>📅</span> Дата операции
+          </div>
+          <div class="detail-value">4 апреля 2026 года</div>
+        </div>
+      </div>
+
+      <div class="warning-note">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-text">
+          Средства зачислены на ваш кошелек. Номер транзакции: <strong>TX-2026-04-04-8923</strong><br>
+          Время исполнения ордера: 14:32:45 MSK
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="#" class="btn btn-secondary" onclick="window.print(); return false;">📄 Распечатать</a>
+        <a href="#" class="btn btn-primary" onclick="alert('Детали транзакции отправлены на email'); return false;">📧 Отправить на email</a>
       </div>
     </div>
   </div>
-
-  <script>
-    // Настройка наценки (2 рубля)
-    const MARKUP_RUB_USDT = 2.0;
-
-    let rates = null;
-
-    async function loadRates() {
-      const rateEl = document.getElementById("rate");
-      const errorEl = document.getElementById("error");
-      
-      try {
-        const response = await fetch(`rate.json?t=${Date.now()}`, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        
-        rates = await response.json();
-        errorEl.style.display = 'none';
-        showRate();
-      } catch (err) {
-        console.error('Ошибка загрузки курса:', err);
-        errorEl.textContent = '⚠️ Не удалось загрузить актуальный курс. Пожалуйста, обновите страницу.';
-        errorEl.style.display = 'block';
-        rateEl.innerHTML = '<div class="rate-placeholder">Ошибка загрузки</div>';
-      }
-    }
-
-    function showRate() {
-      if (!rates) return;
-      
-      const baseRate = rates.rub_usdt_msk;
-      if (!baseRate) {
-        document.getElementById("rate").innerHTML = '<div class="rate-placeholder">Нет данных</div>';
-        return;
-      }
-
-      // Только наценка 2 рубля (без дополнительного вычитания)
-      const displayRate = baseRate + MARKUP_RUB_USDT;
-      document.getElementById("rate").innerHTML = `<span class="rate-value">${displayRate.toFixed(6)}</span><span class="rate-unit">RUB за 1 USDT</span>`;
-      
-      if (rates.updated_at) {
-        const d = new Date(rates.updated_at);
-        document.getElementById("updated").textContent = `Обновлено: ${d.toLocaleString("ru-RU")}`;
-      }
-    }
-
-    // Устанавливаем дату 04.05.2026 (в формате YYYY-MM-DD)
-    document.getElementById('datePicker').value = '2026-05-04';
-
-    loadRates();
-    setInterval(loadRates, 30000);
-  </script>
 </body>
 </html>
