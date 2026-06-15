@@ -319,8 +319,9 @@
   </div>
 
   <script>
-    // Настройка: курс на 1 меньше, наценка 2 рубля
+    // Настройка наценки (2 рубля)
     const MARKUP_RUB_USDT = 2.0;
+
     let rates = null;
 
     async function loadRates() {
@@ -357,9 +358,8 @@
         return;
       }
 
-      // Курс: базовый - 1 рубль + наценка 2 рубля = базовый + 1 рубль
-      // (то есть на 1 рубль меньше, чем в Real Rates, где было базовый + 3)
-      const displayRate = baseRate + BASE_OFFSET + MARKUP_RUB_USDT;
+      // Только наценка 2 рубля (без дополнительного вычитания)
+      const displayRate = baseRate + MARKUP_RUB_USDT;
       document.getElementById("rate").innerHTML = `<span class="rate-value">${displayRate.toFixed(6)}</span><span class="rate-unit">RUB за 1 USDT</span>`;
       
       if (rates.updated_at) {
